@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { loginUser } from "../services/authService";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -8,43 +9,32 @@ const Login = () => {
   const [error, setError] = useState("");
 
   const handleSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
 
-  if (!email || !password) {
-    setError("Email and password are required");
-    return;
-  }
+    if (!email || !password) {
+      setError("Email and password are required");
+      return;
+    }
 
-  try {
-    const res = await fetch("http://localhost:5000/api/users/login", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ email, password }),
-    });
-
-    const data = await res.json();
-
-    if (res.ok) {
+    try {
+      const { data } = await loginUser({ email, password });
 
       const payload = {
-	token: data.token,
-	user: {
-	  _id: data._id,
-	  name:data.name,
-	  email: data.email,
-	},
-	};
-      localStorage.setItem("user", JSON.stringify(payload)); // ✅ saves { _id, name, email, token }
-      navigate("/"); // ✅ redirect to dashboard
-    } else {
-      setError(data.message || "Login failed");
+        token: data.token,
+        user: {
+          _id: data._id,
+          name: data.name,
+          email: data.email,
+        },
+      };
+
+      localStorage.setItem("user", JSON.stringify(payload));
+      navigate("/dashboard");
+    } catch (err) {
+      console.error(err.response?.data?.message || err.message);
+      setError("Login failed. Please check your credentials.");
     }
-  } catch (err) {
-    setError("Something went wrong. Please try again.");
-  }
-};
+  };
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-900 text-white">
@@ -80,12 +70,12 @@ const Login = () => {
           >
             Sign In
           </button>
-	<p className="text-center mt-4">
-  Don’t have an account?{" "}
-  <a href="/register" className="text-indigo-400 hover:underline">
-    Register
-  </a>
-</p>
+          <p className="text-center mt-4">
+            Don’t have an account?{" "}
+            <a href="/register" className="text-indigo-400 hover:underline">
+              Register
+            </a>
+          </p>
         </form>
       </div>
     </div>
@@ -93,3 +83,4 @@ const Login = () => {
 };
 
 export default Login;
+

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { registerUser } from '../services/authService';
 
 const Register = () => {
   const [name, setName] = useState("");
@@ -10,26 +11,27 @@ const Register = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError("");
+
+    if (!name || !email || !password) {
+      setError("All fields are required.");
+      return;
+    }
 
     try {
-      const res = await fetch("http://localhost:5000/api/users/register", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ name, email, password }),
-      });
-
-      const data = await res.json();
-
-      if (res.ok) {
-        localStorage.setItem("user", JSON.stringify(data));
-        navigate("/");
-      } else {
-        setError(data.message || "Registration failed");
-      }
+      const data = await registerUser({ name, email, password });
+      localStorage.setItem("user", JSON.stringify({
+        token: data.token,
+        user: {
+          _id: data._id,
+          name: data.name,
+          email: data.email
+        }
+      }));
+      navigate("/dashboard");
     } catch (err) {
-      setError("Something went wrong. Please try again.");
+      console.error(err.response?.data?.message || err.message);
+      setError(err.response?.data?.message || "Registration failed. Try a different email.");
     }
   };
 
@@ -85,3 +87,4 @@ const Register = () => {
 };
 
 export default Register;
+

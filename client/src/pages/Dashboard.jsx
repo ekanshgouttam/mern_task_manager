@@ -1,5 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import {
+  getTasks,
+  createTask,
+  updateTask,
+  deleteTask,
+} from "../services/taskService";
 
 export default function Dashboard() {
   const [user, setUser] = useState(null);
@@ -11,52 +17,32 @@ export default function Dashboard() {
 
   const navigate = useNavigate();
 
-  const stored = JSON.parse(localStorage.getItem("user"));
   useEffect(() => {
+    const stored = JSON.parse(localStorage.getItem("user"));
     if (!stored?.token || !stored?.user) {
       navigate("/login");
       return;
     }
     setUser(stored.user);
-    fetchTasks(stored.token);
-  }, [navigate]);
 
-  const fetchTasks = async (token) => {
-    try {
-      const res = await fetch("http://localhost:5000/api/tasks", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-      const data = await res.json();
-      if (res.ok) {
+    const fetchData = async () => {
+      try {
+        const { data } = await getTasks(stored.token);
         setTasks(data);
-      } else {
-        console.error(data.message);
+      } catch (err) {
+        console.error("Failed to load tasks:", err.message);
       }
-    } catch (err) {
-      console.error("Failed to fetch tasks:", err.message);
-    }
-  };
+    };
+
+    fetchData();
+  }, [navigate]);
 
   const handleAddTask = async (e) => {
     e.preventDefault();
     try {
-      const res = await fetch("http://localhost:5000/api/tasks", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${user.token}`,
-        },
-        body: JSON.stringify(newTask),
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setTasks([...tasks, data]);
-        setNewTask({ title: "", description: "" });
-      } else {
-        console.error("Error adding task:", data.message);
-      }
+      const { data } = await createTask(user.token, newTask);
+      setTasks([...tasks, data]);
+      setNewTask({ title: "", description: "" });
     } catch (err) {
       console.error("Failed to add task:", err.message);
     }
@@ -64,46 +50,29 @@ export default function Dashboard() {
 
   const handleDelete = async (taskId) => {
     try {
-      const res = await fetch(`http://localhost:5000/api/tasks/${taskId}`, {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${user.token}`,
-        },
-      });
-      const data = await res.json();
-      if (res.ok) {
-        setTasks((prevTasks) => prevTasks.filter((task) => task._id !== taskId));
-      } else {
-        console.error("Delete failed:", data.message);
-      }
+      await deleteTask(user.token, taskId);
+      setTasks(tasks.filter((task) => task._id !== taskId));
     } catch (err) {
       console.error("Error deleting task:", err.message);
     }
   };
 
+  const handleEditClick = (task) => {
+    setEditingTaskId(task._id);
+    setEditTitle(task.title);
+    setEditDescription(task.description);
+  };
+
   const handleUpdate = async () => {
     try {
-      const res = await fetch(`http://localhost:5000/api/tasks/${editingTaskId}`, {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${user.token}`,
-        },
-        body: JSON.stringify({
-          title: editTitle,
-          description: editDescription,
-        }),
+      const { data } = await updateTask(user.token, editingTaskId, {
+        title: editTitle,
+        description: editDescription,
       });
-      const data = await res.json();
-      if (res.ok) {
-        const updatedTasks = tasks.map((t) => (t._id === editingTaskId ? data : t));
-        setTasks(updatedTasks);
-        setEditingTaskId(null);
-        setEditTitle("");
-        setEditDescription("");
-      } else {
-        console.error(data.message);
-      }
+      setTasks(tasks.map((t) => (t._id === editingTaskId ? data : t)));
+      setEditingTaskId(null);
+      setEditTitle("");
+      setEditDescription("");
     } catch (err) {
       console.error("Failed to update task:", err.message);
     }
@@ -122,7 +91,7 @@ export default function Dashboard() {
       <button
         onClick={() => {
           localStorage.removeItem("user");
-          window.location.href = "/login";
+          navigate("/login");
         }}
         className="absolute top-4 right-4 bg-red-600 hover:bg-red-700 px-4 py-2 rounded text-white"
       >
@@ -134,8 +103,10 @@ export default function Dashboard() {
       </h1>
 
       <h2 className="text-xl font-semibold mb-4">Your Tasks</h2>
-
-      <form onSubmit={handleAddTask} className="mb-6 bg-gray-800 p-4 rounded shadow-md flex flex-col gap-4">
+      <form
+        onSubmit={handleAddTask}
+        className="mb-6 bg-gray-800 p-4 rounded shadow-md flex flex-col gap-2"
+      >
         <input
           type="text"
           placeholder="Task Title"
