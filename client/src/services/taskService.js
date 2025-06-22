@@ -2,6 +2,11 @@ import axios from "axios";
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+export const getToken = () => {
+  const user = JSON.parse(localStorage.getItem("user"));
+  return user?.token;
+};
+
 export const getTasks = async (token) => {
   return await axios.get(`${API_BASE_URL}/api/tasks`, {
     headers: {

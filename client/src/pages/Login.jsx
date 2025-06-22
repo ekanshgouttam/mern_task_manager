@@ -17,10 +17,10 @@ const Login = () => {
     }
 
     try {
-      const payload = await loginUser({ email, password });
+      const userData = await loginUser({ email, password });
      
 
-      localStorage.setItem("user", JSON.stringify(payload));
+      localStorage.setItem("user", JSON.stringify(userData));
       navigate("/dashboard");
     } catch (err) {
       console.error(err.response?.data?.message || err.message);
