@@ -10,8 +10,10 @@ function App() {
   return (
     <Router>
       <Routes>
+	<Route path="/" element={<Navigate to="/login" />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+	
 
         {/* Protected Route */}
         <Route
