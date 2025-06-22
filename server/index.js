@@ -4,6 +4,22 @@ const dotenv = require('dotenv');
 const cors = require('cors');
 
 
+// CORS Configuration
+const allowedOrigins = ["https://mern-task-manager-1-1m3r.onrender.com"];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
+
 
 const userRoutes = require('./routes/userRoutes'); // Import user routes
 const taskRoutes = require('./routes/taskRoutes'); // Import task routes (if exist)
