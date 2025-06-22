@@ -159,6 +159,9 @@ export default function Dashboard() {
                   <h3 className="text-lg font-bold">{task.title}</h3>
                   <p>{task.description}</p>
                   <div className="mt-2 flex gap-3">
+		    <button onClick={() => navigate(`/tasks/${task._id}`)} className="bg-yellow-600 px-4 py-1 rounded">
+  		     View
+		    </button>
                     <button onClick={() => handleEditClick(task)} className="bg-blue-600 px-4 py-1 rounded">
                       Edit
                     </button>

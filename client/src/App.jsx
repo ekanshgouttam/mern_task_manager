@@ -12,6 +12,7 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
+	<Route path="/tasks/:id" element={<TaskDetails />} />
 
         {/* Protected Route */}
         <Route
