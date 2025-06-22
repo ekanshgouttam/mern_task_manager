@@ -17,16 +17,8 @@ const Login = () => {
     }
 
     try {
-      const { data } = await loginUser({ email, password });
-
-      const payload = {
-        token: data.token,
-        user: {
-          _id: data._id,
-          name: data.name,
-          email: data.email,
-        },
-      };
+      const payload = await loginUser({ email, password });
+     
 
       localStorage.setItem("user", JSON.stringify(payload));
       navigate("/dashboard");
