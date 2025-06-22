@@ -29,7 +29,7 @@ const Login = () => {
       };
 
       localStorage.setItem("user", JSON.stringify(payload));
-      navigate("/");
+      navigate("/dashboard");
     } catch (err) {
       console.error(err.response?.data?.message || err.message);
       setError("Login failed. Please check your credentials.");
