@@ -21,16 +21,6 @@ app.use(express.json());
 app.use('/api/users', userRoutes);
 app.use('/api/tasks', taskRoutes); // You can comment this out if `taskRoutes` doesn’t exist yet
 
-const path = require('path');
-
-if (process.env.NODE_ENV === 'production') {
-  app.use(express.static(path.join(__dirname, '../client/dist')));
-
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../client/dist/index.html'));
-  });
-}
-
 // MongoDB connection
 mongoose
   .connect(process.env.MONGO_URI, {
