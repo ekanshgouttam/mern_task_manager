@@ -3,10 +3,15 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
 
+const userRoutes = require('./routes/userRoutes');
+const taskRoutes = require('./routes/taskRoutes');
 
-// CORS Configuration
+dotenv.config();
+
+const app = express(); // ✅ must come before app.use()
+
+// ✅ CORS config AFTER app is defined
 const allowedOrigins = ["https://mern-task-manager-1-1m3r.onrender.com"];
-
 app.use(
   cors({
     origin: function (origin, callback) {
@@ -20,22 +25,12 @@ app.use(
   })
 );
 
-
-const userRoutes = require('./routes/userRoutes'); // Import user routes
-const taskRoutes = require('./routes/taskRoutes'); // Import task routes (if exist)
-
-dotenv.config(); // Load environment variables
-
-const app = express();
-const PORT = process.env.PORT || 5000;
-
 // Middleware
-app.use(cors());
 app.use(express.json());
 
 // Routes
 app.use('/api/users', userRoutes);
-app.use('/api/tasks', taskRoutes); // You can comment this out if `taskRoutes` doesn’t exist yet
+app.use('/api/tasks', taskRoutes);
 
 // MongoDB connection
 mongoose
@@ -45,11 +40,9 @@ mongoose
   })
   .then(() => {
     console.log('MongoDB connected');
-    app.listen(process.env.PORT, () =>{
-      console.log(`Server running on port ${process.env.PORT}`)
-   } );
+    app.listen(process.env.PORT || 5000, () =>
+      console.log(`Server running on port ${process.env.PORT || 5000}`)
+    );
   })
-  .catch((err) =>
-    console.error('MongoDB connection error:', err)
-  );
+  .catch((err) => console.error('MongoDB connection error:', err));
 
