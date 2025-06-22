@@ -27,20 +27,19 @@ export default function Dashboard() {
 
     const fetchData = async () => {
       try {
-        const { data } = await getTasks(stored.token);
+        const { data } = await getTasks();
         setTasks(data);
       } catch (err) {
         console.error("Failed to load tasks:", err.message);
       }
     };
-
     fetchData();
   }, [navigate]);
 
   const handleAddTask = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await createTask(user.token, newTask);
+      const { data } = await createTask(newTask);
       setTasks([...tasks, data]);
       setNewTask({ title: "", description: "" });
     } catch (err) {
@@ -50,7 +49,7 @@ export default function Dashboard() {
 
   const handleDelete = async (taskId) => {
     try {
-      await deleteTask(user.token, taskId);
+      await deleteTask(taskId);
       setTasks(tasks.filter((task) => task._id !== taskId));
     } catch (err) {
       console.error("Error deleting task:", err.message);
@@ -65,7 +64,7 @@ export default function Dashboard() {
 
   const handleUpdate = async () => {
     try {
-      const { data } = await updateTask(user.token, editingTaskId, {
+      const { data } = await updateTask(editingTaskId, {
         title: editTitle,
         description: editDescription,
       });
@@ -159,9 +158,9 @@ export default function Dashboard() {
                   <h3 className="text-lg font-bold">{task.title}</h3>
                   <p>{task.description}</p>
                   <div className="mt-2 flex gap-3">
-		    <button onClick={() => navigate(`/tasks/${task._id}`)} className="bg-yellow-600 px-4 py-1 rounded">
-  		     View
-		    </button>
+                    <button onClick={() => navigate(`/tasks/${task._id}`)} className="bg-yellow-600 px-4 py-1 rounded">
+                      View
+                    </button>
                     <button onClick={() => handleEditClick(task)} className="bg-blue-600 px-4 py-1 rounded">
                       Edit
                     </button>
@@ -178,4 +177,3 @@ export default function Dashboard() {
     </div>
   );
 }
-
