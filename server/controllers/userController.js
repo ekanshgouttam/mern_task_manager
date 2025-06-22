@@ -47,6 +47,8 @@ const loginUser = async (req, res) => {
     }
 
     // ✅ THIS is what gets sent back — ensure `name` is included
+
+    console.log("JWT_SECRET:", process.env.JWT_SECRET);
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: '30d',
     });
