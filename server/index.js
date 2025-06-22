@@ -3,6 +3,8 @@ const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 const cors = require('cors');
 
+
+
 const userRoutes = require('./routes/userRoutes'); // Import user routes
 const taskRoutes = require('./routes/taskRoutes'); // Import task routes (if exist)
 
@@ -18,6 +20,16 @@ app.use(express.json());
 // Routes
 app.use('/api/users', userRoutes);
 app.use('/api/tasks', taskRoutes); // You can comment this out if `taskRoutes` doesn’t exist yet
+
+const path = require('path');
+
+if (process.env.NODE_ENV === 'production') {
+  app.use(express.static(path.join(__dirname, 'client/dist')));
+
+  app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client/dist/index.html'));
+  });
+}
 
 // MongoDB connection
 mongoose
