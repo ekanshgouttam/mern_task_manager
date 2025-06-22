@@ -28,7 +28,7 @@ const Register = () => {
           email: data.email
         }
       }));
-      navigate("/dashboard");
+      navigate("/");
     } catch (err) {
       console.error(err.response?.data?.message || err.message);
       setError(err.response?.data?.message || "Registration failed. Try a different email.");
