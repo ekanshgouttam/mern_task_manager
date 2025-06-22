@@ -1,37 +1,39 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { registerUser } from '../services/authService';
+import { registerUser } from "../services/authService";
 
 const Register = () => {
+  const navigate = useNavigate();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
-  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError("");
 
     if (!name || !email || !password) {
-      setError("All fields are required.");
+      setError("All fields are required");
       return;
     }
 
     try {
       const data = await registerUser({ name, email, password });
-      localStorage.setItem("user", JSON.stringify({
+
+      const payload = {
         token: data.token,
         user: {
           _id: data._id,
           name: data.name,
-          email: data.email
-        }
-      }));
-      navigate("/dashboard");
+          email: data.email,
+        },
+      };
+
+      localStorage.setItem("user", JSON.stringify(payload));
+      navigate("/dashboard"); // ✅ Redirect after successful registration
     } catch (err) {
       console.error(err.response?.data?.message || err.message);
-      setError(err.response?.data?.message || "Registration failed. Try a different email.");
+      setError("Registration failed. Please try again.");
     }
   };
 
@@ -45,7 +47,7 @@ const Register = () => {
             <label className="block mb-1">Name</label>
             <input
               type="text"
-              placeholder="Your name"
+              placeholder="Your Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
               className="w-full px-4 py-2 rounded bg-gray-700 border border-gray-600 text-white"
@@ -78,8 +80,14 @@ const Register = () => {
             type="submit"
             className="w-full bg-indigo-600 hover:bg-indigo-700 py-2 rounded font-semibold"
           >
-            Sign Up
+            Register
           </button>
+          <p className="text-center mt-4">
+            Already have an account?{" "}
+            <a href="/login" className="text-indigo-400 hover:underline">
+              Login
+            </a>
+          </p>
         </form>
       </div>
     </div>
@@ -87,4 +95,3 @@ const Register = () => {
 };
 
 export default Register;
-

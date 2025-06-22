@@ -12,14 +12,21 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-	<Route path="/tasks/:id" element={<TaskDetails />} />
 
         {/* Protected Route */}
         <Route
-          path="/dashboard"
+          path="/"
           element={
             <PrivateRoute>
               <Dashboard />
+            </PrivateRoute>
+          }
+        />
+        <Route
+          path="/tasks/:id"
+          element={
+            <PrivateRoute>
+              <TaskDetails />
             </PrivateRoute>
           }
         />
