@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   getTasks,
+  getToken,
   createTask,
   updateTask,
   deleteTask,
@@ -13,7 +14,7 @@ export default function Dashboard() {
   const [editingTaskId, setEditingTaskId] = useState(null);
   const [editTitle, setEditTitle] = useState("");
   const [editDescription, setEditDescription] = useState("");
-  const [newTask, setNewTask] = useState({ title: "", description: "" });
+  const [newTask, setNewTask] = useState({ title: "", description: "",status: "",dueDate: "" });
 
   const navigate = useNavigate();
 
@@ -39,7 +40,7 @@ export default function Dashboard() {
   const handleAddTask = async (e) => {
     e.preventDefault();
     try {
-      const { data } = await createTask(newTask);
+      const { data } = await createTask(newTask, getToken());
       setTasks([...tasks, data]);
       setNewTask({ title: "", description: "" });
     } catch (err) {
@@ -103,27 +104,52 @@ export default function Dashboard() {
 
       <h2 className="text-xl font-semibold mb-4">Your Tasks</h2>
       <form
-        onSubmit={handleAddTask}
-        className="mb-6 bg-gray-800 p-4 rounded shadow-md flex flex-col gap-2"
-      >
-        <input
-          type="text"
-          placeholder="Task Title"
-          value={newTask.title}
-          onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
-          className="px-4 py-2 rounded bg-gray-700 border border-gray-600 text-white"
-          required
-        />
-        <textarea
-          placeholder="Task Description"
-          value={newTask.description}
-          onChange={(e) => setNewTask({ ...newTask, description: e.target.value })}
-          className="px-4 py-2 rounded bg-gray-700 border border-gray-600 text-white"
-        />
-        <button type="submit" className="bg-indigo-600 hover:bg-indigo-700 py-2 rounded font-semibold">
-          Add Task
-        </button>
-      </form>
+  onSubmit={handleAddTask}
+  className="mb-6 bg-gray-800 p-4 rounded shadow-md flex flex-col gap-2"
+>
+  <input
+    type="text"
+    placeholder="Task Title"
+    value={newTask.title}
+    onChange={(e) => setNewTask({ ...newTask, title: e.target.value })}
+    className="px-4 py-2 rounded bg-gray-700 border border-gray-600 text-white"
+    required
+  />
+
+  <textarea
+    placeholder="Task Description"
+    value={newTask.description}
+    onChange={(e) =>
+      setNewTask({ ...newTask, description: e.target.value })
+    }
+    className="px-4 py-2 rounded bg-gray-700 border border-gray-600 text-white"
+  />
+
+  <select
+    value={newTask.status}
+    onChange={(e) => setNewTask({ ...newTask, status: e.target.value })}
+    className="px-4 py-2 rounded bg-gray-700 border border-gray-600 text-white"
+    required
+  >
+    <option value="pending">Pending</option>
+    <option value="in progress">In Progress</option>
+    <option value="completed">Completed</option>
+  </select>
+
+  <input
+    type="date"
+    value={newTask.dueDate}
+    onChange={(e) => setNewTask({ ...newTask, dueDate: e.target.value })}
+    className="px-4 py-2 rounded bg-gray-700 border border-gray-600 text-white"
+  />
+
+  <button
+    type="submit"
+    className="bg-indigo-600 hover:bg-indigo-700 py-2 rounded font-semibold"
+  >
+    Add Task
+  </button>
+</form>
 
       <ul className="space-y-4">
         {tasks.length === 0 ? (
